@@ -1,3 +1,5 @@
+const send = document.querySelector('.btn')
+const input = document.querySelector('input')
 const socket = new WebSocket('ws://localhost:8080')
 let time = null
 socket.onopen = function(event) {
@@ -12,8 +14,8 @@ socket.onmessage = function(event) {
 socket.onclose = function(event) {
     console.log('Соединение прервано!');
 };
-const send = document.querySelector('.btn')
+
 send.addEventListener('click', () => {
     console.log('Отправлено серверу.')
-    socket.send('Привет сервак')
+    socket.send(input.value.toString())
 })
