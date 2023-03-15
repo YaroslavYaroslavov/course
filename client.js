@@ -1,7 +1,8 @@
 const socket = new WebSocket('ws://localhost:8080')
+let time = null
 socket.onopen = function(event) {
-    console.log('Соединение установлено');
-
+    time = new Date()
+    console.log(`Соединение установлено в ${time}`);
 };
 
 socket.onmessage = function(event) {
