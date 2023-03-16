@@ -1,7 +1,8 @@
 const send = document.querySelector('.btn')
 const input = document.querySelector('input')
-const socket = new WebSocket('wss://localhost:8080')
-    // const socket = new WebSocket('wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self')
+const socket = new WebSocket('ws://localhost:8080')
+
+
 let time = null
 socket.onopen = function(event) {
     time = new Date()
