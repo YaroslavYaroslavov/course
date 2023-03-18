@@ -1,57 +1,3 @@
-const send = document.querySelector('.btn')
-const input = document.querySelector('.msg')
-const ipInput = document.querySelector('.ip_input')
-const ipBtn = document.querySelector('.btn_ip')
-const nicknameInput = document.querySelector('.nicknameInput')
-const nickBtn = document.querySelector('.nickBtn')
-const startBTN = document.querySelector('.startGame')
-let user = {
-    nickname: null,
-    id: null,
-    lastGameMaxScore: null,
-    bestGameMaxScore: null,
-    gameCount: null,
-    gameField: [],
-}
-let socket = null
-
-ipBtn.addEventListener('click', () => {
-    link = `ws://${ipInput.value}:8080`
-    socket = new WebSocket(link)
-    let time = null
-    socket.onopen = function(event) {
-        time = new Date()
-        console.log(`Соединение установлено в ${time}`);
-    };
-
-    socket.onmessage = function(event) {
-        const blob = event.data
-        const reader = new FileReader();
-        reader.onload = function() {
-            const buffer = reader.result
-            const imageData = new ImageData(new Uint8ClampedArray(buffer), canvas.width, canvas.height)
-            contextOp.putImageData(imageData, 0, 0)
-        }
-        reader.readAsArrayBuffer(blob)
-            // console.log(buffer)
-            // console.log(imageData)
-            // console.log(JSON.parse(event.data))
-            // contextOp.putImageData(imageData, 0, 0)
-            // contextOp.putImageData(currentPage, 0, 0)
-            // console.log('От сервера пришло:', event.data);
-    };
-
-    socket.onclose = function(event) {
-        console.log('Соединение прервано!');
-    };
-    send.addEventListener('click', () => {
-        console.log('Отправлено серверу.')
-        socket.send(input.value.toString())
-    })
-
-})
-
-listenerOnBTN = true;
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 // получаем доступ к холсту с игровой статистикой
@@ -393,6 +339,7 @@ function loop() {
             }
         }
     }
+    socket.send(JSON.stringify(context.getImageData(0, 0, context.canvas.width, context.canvas.height)))
 
 
 
@@ -442,25 +389,6 @@ document.addEventListener('keydown', function(e) {
         tetromino.row = row;
     }
 });
-startBTN.addEventListener('click', () => {
 
-    // старт игры
-    rAF = requestAnimationFrame(loop);
-
-})
-
-setInterval(() => {
-    if (socket) {
-        const currentPage = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
-        const buffer = currentPage.data.buffer
-        socket.send(buffer)
-
-        // console.log(JSON.stringify(context.getImageData(0, 0, context.canvas.width, context.canvas.height)))
-    } else {
-        console.log('Сокет еще не создан')
-    }
-
-}, 100)
-
-// const socket = new WebSocket('ws://192.168.43.25:8080')
-// получаем доступ к основному холсту
+// старт игры
+rAF = requestAnimationFrame(loop);

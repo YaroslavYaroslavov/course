@@ -5,16 +5,51 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /*настройки стилей страницы*/
+        
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+        /*делаем чёрный фон и выравниваем всё по центру*/
+        
+        body {
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /*толщина обводки холста — 1 пиксель, белый цвет*/
+        
+        canvas {
+            border: 1px solid white;
+        }
+    </style>
+    </style>
     <title>Document</title>
 </head>
 
 <body>
-
-    <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.43.25">
+    <input type="text" class="nicknameInput" placeholder="Введите ваш никнейм">
+    <button class="nickBtn">Сохранить</button>
+    <!-- <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.43.25"> -->
+    <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.1.6">
     <button class="btn_ip">Подключится к IP.</button>
     <input type="text" class="msg">
+
     <button class="btn">Отправить на сервер.</button>
+    <!-- рисуем поле для игры -->
+    <canvas width="320" height="640" id="game"></canvas>
+    <canvas width="320" height="640" id="gameOpponent"></canvas>
+
+    <!-- добавляем область для вывода информации о текущей игре -->
+    <canvas style="border: 0px" width="320" height="100" id="score"></canvas>
+    <button class="startGame">СТАРТ</button>
+    <!-- <script src="game.js"></script> -->
     <script src="./client.js"></script>
+
 </body>
 
 </html>
