@@ -55,7 +55,7 @@ ipBtn.addEventListener('click', () => {
         console.log(clientData.clients)
         if (clientData.status === 'Suc') {
             if (clientData.clients === 2) {
-
+                //
                 data = { status: 'Start' }
                 socket.send(JSON.stringify(data))
 
