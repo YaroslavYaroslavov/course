@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
+    <link rel="stylesheet" href="./style.css">
+    <!-- <style>
         /*настройки стилей страницы*/
         
         html,
@@ -16,7 +17,7 @@
         /*делаем чёрный фон и выравниваем всё по центру*/
         
         body {
-            background: black;
+            background: rgb(0, 0, 0);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -26,28 +27,32 @@
         canvas {
             border: 1px solid white;
         }
-    </style>
-    </style>
+    </style> -->
     <title>Document</title>
 </head>
 
 <body>
-    <input type="text" class="nicknameInput" placeholder="Введите ваш никнейм">
-    <button class="nickBtn">Сохранить</button>
-    <!-- <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.43.25"> -->
-    <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.1.6">
-    <button class="btn_ip">Подключится к IP.</button>
-    <input type="text" class="msg">
+    <div class="loginPage" style="display: none11;">
+        <div class="logo">TETRIS</div>
+        <div class="info">Для того чтобы подключится введите свой никнейм и IP-адрес хоста</div>
+        <div class="inputLabel">
+            <input type="text" class="nicknameInput inputLogin" placeholder="Введите ваш никнейм">
+            <button class="nickBtn loginBtn">Сохранить</button></div>
+        <div class="inputLabel">
 
-    <button class="btn">Отправить на сервер.</button>
-    <!-- рисуем поле для игры -->
-    <canvas width="320" height="640" id="game"></canvas>
-    <canvas width="320" height="640" id="gameOpponent"></canvas>
+            <input type="text" class="ip_input inputLogin" placeholder="Введие IP" value="192.168.43.25">
+            <!-- <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.1.6"> -->
+            <button class="btn_ip loginBtn">Подключится к IP.</button>
 
-    <!-- добавляем область для вывода информации о текущей игре -->
-    <canvas style="border: 0px" width="320" height="100" id="score"></canvas>
-    <button class="startGame">СТАРТ</button>
-    <!-- <script src="game.js"></script> -->
+        </div>
+    </div>
+    <div class="gamePage">
+        <div id="tetris"></div>
+        <div class="fieldOpponent"></div>
+    </div>
+
+
+
     <script src="./client.js"></script>
 
 </body>
