@@ -318,34 +318,36 @@ function Tetris(options) {
     }
 
     function moveTetramino() {
-        controlTimeoutHandle = setTimeout(function() {
+        if (!gameIsDone) {
+            controlTimeoutHandle = setTimeout(function() {
 
-            if (currentTetramino.prevCoords) {
+                if (currentTetramino.prevCoords) {
+                    for (var i = 0; i < currentTetramino.form.length; i++) {
+                        for (var j = 0; j < currentTetramino.form[i].length; j++) {
+                            if (currentTetramino.form[i][j] == '.') continue;
+                            fieldArray[i + currentTetramino.prevCoords[1]][j + currentTetramino.prevCoords[0]] = '.';
+                        }
+                    }
+                }
+
+                currentTetramino.control(coordsToMove);
+
                 for (var i = 0; i < currentTetramino.form.length; i++) {
                     for (var j = 0; j < currentTetramino.form[i].length; j++) {
                         if (currentTetramino.form[i][j] == '.') continue;
-                        fieldArray[i + currentTetramino.prevCoords[1]][j + currentTetramino.prevCoords[0]] = '.';
+                        fieldArray[i + currentTetramino.coords[1]][j + currentTetramino.coords[0]] = currentTetramino.form[i][j];
                     }
                 }
-            }
 
-            currentTetramino.control(coordsToMove);
+                currentTetramino.prevCoords = currentTetramino.coords.slice(0);
+                coordsToMove = [0, 0];
 
-            for (var i = 0; i < currentTetramino.form.length; i++) {
-                for (var j = 0; j < currentTetramino.form[i].length; j++) {
-                    if (currentTetramino.form[i][j] == '.') continue;
-                    fieldArray[i + currentTetramino.coords[1]][j + currentTetramino.coords[0]] = currentTetramino.form[i][j];
-                }
-            }
+                drawField();
+                checkBlocksUnderTetramino();
 
-            currentTetramino.prevCoords = currentTetramino.coords.slice(0);
-            coordsToMove = [0, 0];
-
-            drawField();
-            checkBlocksUnderTetramino();
-
-            moveTetramino();
-        }, 0);
+                moveTetramino();
+            }, 0);
+        }
     }
 
     function fallTetramino() {
@@ -434,7 +436,8 @@ function Tetris(options) {
             gameIsDone = true
             canselGame()
             alert('Вы проиграли!')
-                // resetGame();
+            location.reload()
+                // }
         }
     }
 
