@@ -187,3 +187,7 @@ body {
     display: flex;
     gap: 200px;
 }
+
+.nothing {
+    display: flex;
+}
