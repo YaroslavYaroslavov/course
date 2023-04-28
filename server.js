@@ -1,12 +1,35 @@
+const os = require('os');
 const WebSocket = require('./node_modules/ws')
+let networkInterfaces = os.networkInterfaces();
+let roomIsClose = false
+let nonLocalInterfaces = {};
+for (let inet in networkInterfaces) {
+    let addresses = networkInterfaces[inet];
+    for (let i = 0; i < addresses.length; i++) {
+        let address = addresses[i];
+        if (!address.internal) {
+            if (!nonLocalInterfaces[inet]) {
+                nonLocalInterfaces[inet] = [];
+            }
+            nonLocalInterfaces[inet].push(address);
+        }
+    }
+}
 
+const currentIp = nonLocalInterfaces['Беспроводная сеть'][1].address;
 const server = new WebSocket.Server({ port: 8080 })
+if (server) {
+    console.log(`Сервер успешно запущен на ip ${currentIp}.`)
+}
+
+
 const clients = [];
 
-function generateUniqueId() {
-    const timestamp = +new Date(); // получаем текущую метку времени в миллисекундах
-    const randomNum = Math.floor(Math.random() * 10000); // генерируем случайное число от 0 до 9999
-    return `${timestamp}${randomNum}`; // объединяем метку времени и случайное число в одну строку и возвращаем
+
+function removeStringFromArray(arr, str) {
+    return arr.filter(function(item) {
+        return item !== str; // оставить только те элементы, которые не равны заданной строке
+    });
 }
 
 function deleteObjectById(id, arr) {
@@ -35,56 +58,85 @@ function broadcastMessage(message) {
         }
     });
 }
-let alredyConnection = ''
+let alredyConnection = []
 server.on('connection', (socket, req) => {
-    if (req.rawHeaders[9] === alredyConnection) {
-        console.log('Попытка повторной регистрации в комнате.')
-        const data = {
-            status: 'Error',
-            msg: 'Вы уже подключены'
+    if (!roomIsClose) {
+        if (alredyConnection.includes(req.rawHeaders[9])) {
+            console.log('Попытка повторной регистрации в комнате.')
+            const data = {
+                status: 'Error',
+                msg: 'Вы уже подключены'
+            }
+            socket.send(JSON.stringify(data))
+            socket.close()
+            return
+        } else {
+            if (clients.length === 2) {
+                console.log('Попытка регистрации при полной комнате.')
+                const data = {
+                    status: 'Error',
+                    msg: 'Server is full'
+                }
+                socket.send(JSON.stringify(data))
+                socket.close()
+                return
+            } else {
+                console.log(req.rawHeaders[9])
+                alredyConnection.push(req.rawHeaders[9])
+                socket.browserName = req.rawHeaders[9]
+            }
         }
-        socket.send(JSON.stringify(data))
-
-        return
     } else {
-        alredyConnection = req.rawHeaders[9]
-    }
-    if (clients.length === 2) {
-        console.log('Попытка регистрации при полной комнате.')
+        console.log('Попытка подключение когда комната закрыта.')
         const data = {
             status: 'Error',
-            msg: 'Server is full'
+            msg: 'Game is done'
         }
         socket.send(JSON.stringify(data))
-
-        return
+        socket.close()
     }
+
+
 
     socket.on('message', (data) => {
         const dataClient = JSON.parse(data.toString())
         if (dataClient.status === 'requestToRegister') {
             console.log('Cоединение установлено')
-            socket.id = generateUniqueId()
+            socket.id = dataClient.userInfo.id
             clients.push(socket)
             console.log(clients.length)
             socket.name = dataClient.userInfo.nickname
+            console.log(dataClient)
             const data = {
-                status: 'Suc',
+                status: 'Connected',
                 msg: `Пользователь ${socket.name} успешно подключился`,
                 nickname: socket.name,
                 id: socket.id,
                 clients: clients.length
             }
+
+            // console.log(data)
+            // console.log(dataClient.userInfo.nickname)
             socket.send(JSON.stringify(data))
+
+            // broadcastMessage(JSON.stringify(data))
         }
         if (dataClient.status === 'Start') {
             broadcastMessage(JSON.stringify(dataClient))
+            roomIsClose = true
         }
         if (dataClient.status === 'gameOver') {
+
             broadcastMessage(JSON.stringify(dataClient))
         }
 
-
+        clients.forEach((client) => {
+            if (dataClient.status === 'Stat') {
+                if (client.id !== dataClient.userInfo.id) {
+                    client.send(JSON.stringify(dataClient))
+                }
+            }
+        })
 
         clients.forEach((client) => {
             if (dataClient.status === 'gameField') {
@@ -97,9 +149,24 @@ server.on('connection', (socket, req) => {
 
         })
     });
-    socket.on('close', () => {
+    socket.on('close', (code) => {
+        if (code === 1005) {
+            return
+        }
         deleteObjectById(socket.id, clients)
-        console.log(clients.length)
+        alredyConnection = removeStringFromArray(alredyConnection, socket.browserName)
+        console.log(`Пользователь с ID${socket.id} отключен`)
+        if (alredyConnection.length === 0) {
+            roomIsClose = false
+            console.log('ПОДКЛЮЧИТСЯ МОЖНО')
+        }
+        const data = {
+            status: 'Disconnected',
+            id: socket.id,
+            name: socket.name,
+            msg: `Пользователь ${socket.name} отключился`
+        }
+        broadcastMessage(JSON.stringify(data))
     })
 
 });

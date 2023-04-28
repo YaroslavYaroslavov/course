@@ -7,10 +7,57 @@ const nickBtn = document.querySelector('.nickBtn')
 const startBTN = document.querySelector('.startGame')
 
 
+const yourMaxScoreElem = document.querySelector('.yourMaxScore')
+const yourLastScoreElem = document.querySelector('.yourLastScore')
+const oppMaxScoreElem = document.querySelector('.opponentMaxScore')
+const oppLastScoreElem = document.querySelector('.opponentLastScore')
+
+const yourNick = document.querySelector('.yourName')
+const oppNick = document.querySelector('.opponentName')
+
 const loginPage = document.querySelector('.loginPage')
 const gamePage = document.querySelector('.gamePage')
 
 const gameOpp = document.querySelector('.fieldOpponent')
+
+nicknameInput.value = localStorage.getItem('tetrisName') || ''
+
+let user = {}
+
+let nicknameSession = ''
+const createLocalStorage = () => {
+    if (!localStorage.getItem('maxScore')) {
+        console.log('Нет записи')
+        localStorage.setItem('maxScore', 0)
+    } else {
+        yourMaxScoreElem.innerHTML = `Ваш максимальный счет: ${localStorage.getItem('maxScore')}`
+    }
+    if (!localStorage.getItem('lastScore')) {
+        console.log('Нет записи')
+        localStorage.setItem('lastScore', 0)
+    } else {
+        yourLastScoreElem.innerHTML = `Ваш последний счет: ${localStorage.getItem('lastScore')}`
+    }
+}
+createLocalStorage()
+
+const getRecordScore = () => {
+    const scoreCounterElem = document.querySelector('.score-field')
+    const lastScore = Number(scoreCounterElem.textContent)
+    const maxScore = Number(localStorage.getItem('maxScore'))
+    localStorage.setItem('lastScore', lastScore)
+    if (maxScore < lastScore) {
+        console.log('12312312313233123')
+        localStorage.setItem('maxScore', lastScore)
+    }
+
+}
+
+function generateUniqueId() {
+    const timestamp = +new Date(); // получаем текущую метку времени в миллисекундах
+    const randomNum = Math.floor(Math.random() * 10000); // генерируем случайное число от 0 до 9999
+    return `${timestamp}${randomNum}`; // объединяем метку времени и случайное число в одну строку и возвращаем
+}
 
 let gameIsDone = false
 let socket = null
@@ -28,13 +75,11 @@ ipBtn.addEventListener('click', () => {
         console.log(`Соединение установлено в ${time}`);
 
 
-        const user = {
+        user = {
             nickname: nicknameInput.value || 'Guest',
-            id: null,
-            lastGameMaxScore: null,
-            bestGameMaxScore: null,
-            gameCount: null,
-            gameField: [],
+            id: generateUniqueId(),
+            lastGameMaxScore: localStorage.getItem('maxScore'),
+            bestGameMaxScore: localStorage.getItem('lastScore'),
         }
 
         const data = {
@@ -46,42 +91,59 @@ ipBtn.addEventListener('click', () => {
 
         loginPage.style.display = 'none'
         gamePage.style.display = 'flex'
-
+        nicknameSession = user.nickname
     };
 
     socket.onmessage = function(event) {
-        // console.log(event.data)
         const clientData = JSON.parse(event.data)
-        console.log(clientData.clients)
-        if (clientData.status === 'Suc') {
+        if (clientData.status === 'Stat') {
+            oppNick.innerHTML = `${clientData.userInfo.nickname}(Противник)`
+            oppLastScoreElem.innerHTML = `Счет в последней игре: ${clientData.userInfo.lastGameMaxScore}`
+            oppMaxScoreElem.innerHTML = `Максимальный счет: ${clientData.userInfo.bestGameMaxScore}`
+        }
+        if (clientData.status === 'Connected') {
+
+
             if (clientData.clients === 2) {
-                //
-                data = { status: 'Start' }
+                const data = { status: 'Start' }
                 socket.send(JSON.stringify(data))
 
             }
-
         }
         if (clientData.status === 'Start') {
+            yourNick.style.display = 'block'
+            oppNick.style.display = 'block'
+            gamePage.style.gap = '200px'
+            gamePage.style.textAlign = 'left'
             const tetris = new Tetris({
                 elem: document.getElementById('tetris'),
                 width: 10,
                 height: 20
             });
+
         }
         if (clientData.status === 'gameField') {
             const opponentField = clientData.field
-            console.log(opponentField)
             drawGameField(opponentField, gameOpp)
         }
         if (clientData.status === 'gameOver') {
-            alert('Вы победили!')
+            console.log()
         }
+        if (clientData.status === 'Disconnected') {
+            if (confirm(`Пользователь ${clientData.name} отключился, продолжить игру?`)) {
 
+            } else {
+                getRecordScore()
+                location.reload()
+            }
+        }
     };
 
     socket.onclose = function(event) {
+
         console.log('Соединение прервано!');
+        location.reload()
+
     };
 
 
@@ -282,6 +344,11 @@ function Tetris(options) {
             field: fieldArray
         }
         socket.send(JSON.stringify(data))
+        const stat = {
+            status: 'Stat',
+            userInfo: user
+        }
+        socket.send(JSON.stringify(stat))
     }
 
     function drawNextTetramino() {
@@ -436,6 +503,7 @@ function Tetris(options) {
             gameIsDone = true
             canselGame()
             alert('Вы проиграли!')
+            getRecordScore()
             location.reload()
                 // }
         }
@@ -463,9 +531,7 @@ function drawGameField(gameFieldOpp, parentElement) {
     // Создаем элемент таблицы
 
     const table = document.createElement("table");
-    console.log(gameFieldOpp)
-    console.log(parentElement)
-        // Создаем ячейки и заполняем их значениями из игрового поля
+    // Создаем ячейки и заполняем их значениями из игрового поля
     for (let i = 0; i < gameFieldOpp.length; i++) {
         const row = document.createElement("tr");
         for (let j = 0; j < gameFieldOpp[i].length; j++) {
@@ -497,3 +563,7 @@ setInterval(() => {
 
     }
 }, 100)
+
+nickBtn.addEventListener('click', () => {
+    localStorage.setItem('tetrisName', nicknameInput.value)
+})

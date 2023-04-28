@@ -41,15 +41,29 @@
         <div class="inputLabel">
 
             <input type="text" class="ip_input inputLogin" placeholder="Введие IP" value="192.168.43.25">
-            <input type="text" class="ip_input inputLogin" placeholder="Введие IP" value="192.168.1.6">
+            <!-- <input type="text" class="ip_input inputLogin" n placeholder="Введие IP" value="192.168.1.6"> -->
             <!-- <input type="text" class="ip_input" placeholder="Введие IP" value="192.168.1.6"> -->
             <button class="btn_ip loginBtn">Подключится к IP.</button>
 
         </div>
     </div>
     <div class="gamePage">
-        <div id="tetris"></div>
-        <div class="fieldOpponent"></div>
+        <div class="tetrisWrap">
+            <div id="tetris"></div>
+            <div class="name yourName">Вы</div>
+            <div class="yourStat stat">
+                <div class="yourLastScore lastScore"></div>
+                <div class="yourMaxScore maxScore"></div>
+            </div>
+        </div>
+        <div class="tetrisWrap">
+            <div class="fieldOpponent"></div>
+            <div class="name opponentName">Противник</div>
+            <div class="opponentStat stat">
+                <div class="opponentLastScore lastScore"></div>
+                <div class="opponentMaxScore maxScore"></div>
+            </div>
+        </div>
     </div>
 
 

@@ -34,6 +34,8 @@ body {
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    margin-top: 200px;
+    /* justify-content: center; */
 }
 
 .loginBtn {
@@ -53,7 +55,11 @@ body {
 }
 
 #tetris {
-    display: inline-block;
+    /* display: none */
+    display: flex;
+    flex-direction: row-reverse;
+    /* gap: 50px; */
+    /* margin: auto; */
 }
 
 #tetris div.ui {
@@ -138,7 +144,7 @@ body {
     margin: 15px;
     padding: 5px;
     border: 1px solid #607d8b;
-    background-color: #f5f5f5;
+    /* background-color: #f5f5f5; */
     -webkit-box-shadow: -5px 5px 15px #607d8b;
     box-shadow: -5px 5px 15px #607d8b;
 }
@@ -185,9 +191,21 @@ body {
 
 .gamePage {
     display: flex;
-    gap: 200px;
+    gap: 0px;
+    text-align: left;
+    /* text-align: center; */
+    align-items: center;
+    justify-content: center;
 }
 
 .nothing {
     display: flex;
+}
+
+.q {
+    color: white;
+}
+
+.name {
+    display: none;
 }
