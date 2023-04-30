@@ -11,7 +11,8 @@ const yourMaxScoreElem = document.querySelector('.yourMaxScore')
 const yourLastScoreElem = document.querySelector('.yourLastScore')
 const oppMaxScoreElem = document.querySelector('.opponentMaxScore')
 const oppLastScoreElem = document.querySelector('.opponentLastScore')
-
+const yourGameCountElem = document.querySelector('.yourGameCount')
+const oppGameCountElem = document.querySelector('.oppGameCount')
 const yourNick = document.querySelector('.yourName')
 const oppNick = document.querySelector('.opponentName')
 
@@ -20,7 +21,7 @@ const gamePage = document.querySelector('.gamePage')
 
 const gameOpp = document.querySelector('.fieldOpponent')
 
-nicknameInput.value = localStorage.getItem('tetrisName') || ''
+nicknameInput.value = localStorage.getItem('tetrisName') || '   '
 
 let user = {}
 
@@ -38,6 +39,12 @@ const createLocalStorage = () => {
     } else {
         yourLastScoreElem.innerHTML = `Ваш последний счет: ${localStorage.getItem('lastScore')}`
     }
+    if (!localStorage.getItem('gameCount')) {
+        console.log('Нет записи')
+        localStorage.setItem('gameCount', 0)
+    } else {
+        yourGameCountElem.innerHTML = `Количество Ваших игр: ${localStorage.getItem('gameCount')}`
+    }
 }
 createLocalStorage()
 
@@ -45,9 +52,9 @@ const getRecordScore = () => {
     const scoreCounterElem = document.querySelector('.score-field')
     const lastScore = Number(scoreCounterElem.textContent)
     const maxScore = Number(localStorage.getItem('maxScore'))
+    localStorage.setItem('gameCount', Number(localStorage.getItem('gameCount')) + 1)
     localStorage.setItem('lastScore', lastScore)
     if (maxScore < lastScore) {
-        console.log('12312312313233123')
         localStorage.setItem('maxScore', lastScore)
     }
 
@@ -80,6 +87,7 @@ ipBtn.addEventListener('click', () => {
             id: generateUniqueId(),
             lastGameMaxScore: localStorage.getItem('maxScore'),
             bestGameMaxScore: localStorage.getItem('lastScore'),
+            gameCount: localStorage.getItem('gameCount')
         }
 
         const data = {
@@ -98,6 +106,7 @@ ipBtn.addEventListener('click', () => {
         const clientData = JSON.parse(event.data)
         if (clientData.status === 'Stat') {
             oppNick.innerHTML = `${clientData.userInfo.nickname}(Противник)`
+            oppGameCountElem.innerHTML = `Количество игр: ${clientData.userInfo.gameCount} `
             oppLastScoreElem.innerHTML = `Счет в последней игре: ${clientData.userInfo.lastGameMaxScore}`
             oppMaxScoreElem.innerHTML = `Максимальный счет: ${clientData.userInfo.bestGameMaxScore}`
         }

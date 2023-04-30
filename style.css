@@ -192,8 +192,7 @@ body {
 .gamePage {
     display: flex;
     gap: 0px;
-    text-align: left;
-    /* text-align: center; */
+    text-align: center;
     align-items: center;
     justify-content: center;
 }
